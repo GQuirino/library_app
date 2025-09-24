@@ -12,4 +12,9 @@ Rails.application.routes.draw do
     }
 
   get "/dashboard", to: "dashboard#index"
+
+  resources :books do
+    resources :book_copies, except: [ :show ]
+  end
+  resources :book_copies, only: [ :show ]
 end
