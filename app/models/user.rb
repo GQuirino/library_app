@@ -17,7 +17,7 @@ class User < ApplicationRecord
   scope :librarians, -> { where(role: :librarian) }
   scope :members, -> { where(role: :member) }
   scope :with_open_reservations, -> { joins(:reservations).where(reservations: { returned_at: nil }) }
-  scope :with_overdue_reservations, -> { joins(:reservations).where('reservations.return_date < ? AND reservations.returned_at IS NULL', Date.today) }
+  scope :with_overdue_reservations, -> { joins(:reservations).where("reservations.return_date < ? AND reservations.returned_at IS NULL", Date.today) }
 
   private
 

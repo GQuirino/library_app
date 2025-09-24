@@ -3,7 +3,7 @@ class BookCopy < ApplicationRecord
   has_many :reservations, dependent: :destroy
 
   validates :book_serial_number, presence: true, uniqueness: true
-  validates :available, inclusion: { in: [true, false] }
+  validates :available, inclusion: { in: [ true, false ] }
 
   scope :copies_for, ->(book) { where(book:) }
   scope :available, -> { where(available: true) }

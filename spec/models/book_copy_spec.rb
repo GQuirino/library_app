@@ -33,7 +33,7 @@ RSpec.describe BookCopy, type: :model do
 
 
     it ".copies_for returns copies for a book" do
-      expect(BookCopy.copies_for(book)).to match_array([copy1, copy2])
+      expect(BookCopy.copies_for(book)).to match_array([ copy1, copy2 ])
     end
 
     it ".available returns available copies" do

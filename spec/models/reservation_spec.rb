@@ -32,6 +32,8 @@ RSpec.describe Reservation, type: :model do
     let!(:active) { create(:reservation, :open, user: user, book_copy: book_copy) }
     let!(:returned) { create(:reservation, :returned, user: user, book_copy: book_copy) }
     let!(:overdue) { create(:reservation, :overdue, user: user, book_copy: book_copy) }
+    let!(:overdue_returned) { create(:reservation, :active_with_overdue_date, user: user, book_copy: book_copy) }
+    let!(:due_today) { create(:reservation, user: user, book_copy: book_copy, return_date: Date.today) }
 
     it 'returns active reservations' do
       expect(described_class.active).to include(active)
@@ -39,11 +41,77 @@ RSpec.describe Reservation, type: :model do
     end
 
     it 'returns reservations for a user' do
-      expect(described_class.for_user(user)).to include(active, returned, overdue)
+      expect(described_class.for_user(user.id)).to include(active, returned, overdue)
     end
 
     it 'returns reservations for a book_copy' do
       expect(described_class.for_book_copy(book_copy)).to include(active, returned, overdue)
+    end
+
+    it 'returns reservations by due date' do
+      expect(described_class.due_date(Date.today)).to include(due_today)
+      expect(described_class.due_date(Date.today)).not_to include(active, returned, overdue)
+    end
+
+    describe '.overdue' do
+      it 'returns only active reservations that are overdue' do
+        overdue_reservations = described_class.overdue
+
+        expect(overdue_reservations).to include(overdue_returned)
+        expect(overdue_reservations).not_to include(overdue)
+      end
+
+      it 'does not include reservations due today' do
+        expect(described_class.overdue).not_to include(due_today)
+      end
+    end
+
+    describe '.not_overdue' do
+      let!(:not_overdue_active) { create(:reservation, user: user, book_copy: create(:book_copy), return_date: Date.current + 2.days, returned_at: nil) }
+      let!(:overdue_active) { create(:reservation, user: user, book_copy: create(:book_copy), return_date: Date.current - 1.day, returned_at: nil) }
+      let!(:not_overdue_returned) { create(:reservation, user: user, book_copy: create(:book_copy), return_date: Date.current + 1.day, returned_at: Date.current) }
+
+      it 'returns only active reservations that are not overdue' do
+        not_overdue_reservations = described_class.not_overdue
+
+        expect(not_overdue_reservations).to include(not_overdue_active)
+        expect(not_overdue_reservations).not_to include(overdue_active) # overdue
+        expect(not_overdue_reservations).not_to include(not_overdue_returned) # returned, so not active
+      end
+
+      it 'includes reservations due today' do
+        today_reservation = create(:reservation, user: user, book_copy: create(:book_copy), return_date: Date.current, returned_at: nil)
+
+        expect(described_class.not_overdue).to include(today_reservation)
+      end
+
+      it 'includes reservations due in the future' do
+        future_reservation = create(:reservation, user: user, book_copy: create(:book_copy), return_date: Date.current + 5.days, returned_at: nil)
+
+        expect(described_class.not_overdue).to include(future_reservation)
+      end
+    end
+
+    describe 'scope combinations' do
+      let!(:overdue_active) { create(:reservation, user: user, book_copy: create(:book_copy), return_date: Date.current - 1.day, returned_at: nil) }
+      let!(:not_overdue_active) { create(:reservation, user: user, book_copy: create(:book_copy), return_date: Date.current + 1.day, returned_at: nil) }
+
+      it 'overdue and not_overdue scopes are mutually exclusive for active reservations' do
+        all_active = described_class.active
+        overdue_count = described_class.overdue.count
+        not_overdue_count = described_class.not_overdue.count
+
+        expect(overdue_count + not_overdue_count).to eq(all_active.count)
+      end
+
+      it 'can chain scopes with for_user' do
+        other_user = create(:user, :member)
+        other_user_overdue = create(:reservation, user: other_user, book_copy: create(:book_copy), return_date: Date.current - 1.day, returned_at: nil)
+
+        user_overdue = described_class.for_user(user.id).overdue
+        expect(user_overdue).to include(overdue_active)
+        expect(user_overdue).not_to include(other_user_overdue)
+      end
     end
   end
 

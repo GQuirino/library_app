@@ -5,7 +5,7 @@ FactoryBot.define do
     return_date { Date.today + 7.days }
     returned_at { Date.today }
 
-    trait :ended_with_overdue_date do
+    trait :active_with_overdue_date do
       return_date { Date.today - 3.days }
       returned_at { nil }
     end

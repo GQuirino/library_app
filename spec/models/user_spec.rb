@@ -137,21 +137,21 @@ RSpec.describe User, type: :model do
 
       before do
         # Overdue reservation (not returned)
-        create(:reservation, 
-               user: user_with_overdue, 
-               return_date: 2.days.ago, 
+        create(:reservation,
+               user: user_with_overdue,
+               return_date: 2.days.ago,
                returned_at: nil)
-        
+
         # Current reservation (not overdue)
-        create(:reservation, 
-               user: user_with_current, 
-               return_date: 2.days.from_now, 
+        create(:reservation,
+               user: user_with_current,
+               return_date: 2.days.from_now,
                returned_at: nil)
-        
+
         # Overdue but already returned
-        create(:reservation, 
-               user: user_with_returned_overdue, 
-               return_date: 2.days.ago, 
+        create(:reservation,
+               user: user_with_returned_overdue,
+               return_date: 2.days.ago,
                returned_at: 1.day.ago)
       end
 
@@ -163,5 +163,3 @@ RSpec.describe User, type: :model do
     end
   end
 end
-
-

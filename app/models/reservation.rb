@@ -10,9 +10,16 @@ class Reservation < ApplicationRecord
   before_create :mark_book_copy_unavailable!
 
   scope :active, -> { where(returned_at: nil) }
-  scope :overdue, -> { where('return_date < ? AND return_date IS NULL', Date.today) }
-  scope :for_user, ->(user) { where(user:) }
+  scope :due_date, ->(date) { where(return_date: date) }
+  scope :overdue, -> { active.where("return_date < ?", Date.current) }
+  scope :not_overdue, -> { active.where("return_date >= ?", Date.current) }
+  scope :for_user, ->(user_id) { where(user_id:) }
   scope :for_book_copy, ->(book_copy) { where(book_copy:) }
+  scope :ended, -> { where.not(returned_at: nil) }
+
+  def self.due_today
+    due_date(Date.current)
+  end
 
   def mark_as_returned!
     book_copy.mark_available!
