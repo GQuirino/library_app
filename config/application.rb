@@ -20,6 +20,9 @@ Bundler.require(*Rails.groups)
 
 module LibraryApi
   class Application < Rails::Application
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
 
