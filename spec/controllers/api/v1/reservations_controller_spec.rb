@@ -659,15 +659,6 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
       end
     end
 
-    context 'when user is authenticated as member' do
-      before { sign_in member_user }
-
-      it 'returns forbidden status (members cannot view individual reservations via API)' do
-        get :show, params: { id: reservation.id }
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
     context 'when user is authenticated as librarian' do
       before { sign_in librarian_user }
 

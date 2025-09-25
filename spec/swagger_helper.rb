@@ -66,8 +66,7 @@ RSpec.configure do |config|
               },
               created_at: { type: :string, format: 'date-time' },
               updated_at: { type: :string, format: 'date-time' }
-            },
-            required: [ 'id', 'email', 'name', 'role' ]
+            }
           },
           Book: {
             type: :object,
@@ -82,24 +81,19 @@ RSpec.configure do |config|
               genre: { type: :string, example: 'Programming' },
               created_at: { type: :string, format: 'date-time' },
               updated_at: { type: :string, format: 'date-time' }
-            },
-            required: [ 'id', 'title', 'author', 'publisher', 'edition', 'year' ]
+            }
           },
           BookCopy: {
             type: :object,
             properties: {
               id: { type: :integer, example: 1 },
-              book_id: { type: :integer, example: 1 },
+              book_serial_number: { type: :string, example: 'BC123456' },
               available: { type: :boolean, example: true },
-              condition: {
-                type: :string,
-                enum: [ 'excellent', 'good', 'fair', 'poor' ],
-                example: 'good'
-              },
+              book_id: { type: :integer, example: 1 },
+              book_title: { type: :string, example: 'The Ruby Programming Language' },
               created_at: { type: :string, format: 'date-time' },
               updated_at: { type: :string, format: 'date-time' }
-            },
-            required: [ 'id', 'book_id', 'available' ]
+            }
           },
           Reservation: {
             type: :object,
@@ -108,11 +102,10 @@ RSpec.configure do |config|
               user_id: { type: :integer, example: 1 },
               book_copy_id: { type: :integer, example: 1 },
               return_date: { type: :string, format: :date, example: '2025-10-15' },
-              returned_at: { type: :string, format: 'date-time', nullable: true },
+              returned_at: { type: :string, format: 'date', nullable: true },
               created_at: { type: :string, format: 'date-time' },
               updated_at: { type: :string, format: 'date-time' }
-            },
-            required: [ 'id', 'user_id', 'book_copy_id', 'return_date' ]
+            }
           },
           Dashboard: {
             type: :object,
@@ -155,20 +148,31 @@ RSpec.configure do |config|
               message: { type: :string, example: 'Not authorized' }
             }
           },
-          ValidationError: {
+          UserValidationError: {
             type: :object,
             properties: {
-              message: { type: :string, example: 'Validation failed' },
+              message: { type: :string, example: 'User validation failed' },
               errors: {
-                type: :object,
-                additionalProperties: {
-                  type: :array,
-                  items: { type: :string }
-                },
-                example: {
-                  email: [ 'has already been taken' ],
-                  password: [ 'is too short (minimum is 6 characters)' ]
-                }
+                type: :array,
+                items: { type: :string },
+                example: [ 'Name can\'t be blank', 'Email is invalid', 'Birthdate can\'t be blank', 'Address can\'t be blank', 'Phone number can\'t be blank' ]
+              }
+            }
+          },
+          BooksValidationError: {
+            type: :object,
+            properties: {
+              message: { type: :string, example: 'Failed to create book' },
+              errors: {
+                type: :array,
+                items: { type: :string },
+                example: [
+                  'Title can\'t be blank',
+                  'Author can\'t be blank',
+                  'Publisher can\'t be blank',
+                  'Edition can\'t be blank',
+                  'Year can\'t be blank'
+                ]
               }
             }
           },

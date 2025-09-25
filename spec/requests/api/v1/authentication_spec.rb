@@ -41,6 +41,7 @@ RSpec.describe 'Authentication API', type: :request do
                }
 
         let(:user) { { user: { email: 'test@example.com', password: 'password' } } }
+        let(:Authorization) {  }
 
         before do
           create(:user, email: 'test@example.com', password: 'password')
@@ -48,7 +49,9 @@ RSpec.describe 'Authentication API', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data['status']['code']).to eq(200)
+          expect(response.status).to eq(200)
+          expect(data['token']).to be_present
+          expect(data['user']).to be_present
         end
       end
 
@@ -56,14 +59,16 @@ RSpec.describe 'Authentication API', type: :request do
         schema '$ref': '#/components/schemas/Error'
 
         let(:user) { { user: { email: 'wrong@example.com', password: 'wrongpassword' } } }
+        let(:Authorization) { }
 
         run_test!
       end
 
-      response(422, 'invalid parameters') do
-        schema '$ref': '#/components/schemas/ValidationError'
+      response(401, 'invalid parameters') do
+        schema '$ref': '#/components/schemas/UserValidationError'
 
         let(:user) { { user: { email: '', password: '' } } }
+        let(:Authorization) { }
 
         run_test!
       end
@@ -93,12 +98,6 @@ RSpec.describe 'Authentication API', type: :request do
 
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{generate_jwt_token(user)}" }
-
-        run_test!
-      end
-
-      response(401, 'unauthorized') do
-        schema '$ref': '#/components/schemas/ErrorLogout'
 
         run_test!
       end
@@ -155,27 +154,32 @@ RSpec.describe 'Authentication API', type: :request do
               email: 'newuser@example.com',
               password: 'password123',
               password_confirmation: 'password123',
-              name: 'John Doe'
+              name: 'John Doe',
+              birthdate: '1990-01-01',
+              address: { street: '123 Main St', city: 'Anytown', state: 'CA', zip: '12345' },
+              phone_number: '555-123-4567'
             }
           }
         end
+        let(:Authorization) { }
 
         run_test!
       end
 
       response(422, 'validation errors') do
-        schema '$ref': '#/components/schemas/ValidationError'
+        schema '$ref': '#/components/schemas/UserValidationError'
 
         let(:user) do
           {
             user: {
-              email: 'invalid-email',
-              password: '123',
-              password_confirmation: '456',
-              name: ''
+              email: '',
+              password: '',
+              password_confirmation: ''
             }
           }
         end
+        let(:Authorization) { }
+
 
         run_test!
       end

@@ -3,6 +3,7 @@ class Book < ApplicationRecord
 
     validates :title, :author, :publisher, :edition, :year, presence: true
 
-    # Filter scopes
-    scope :filter_by, ->(column, value) { where("#{column} ILIKE ?", "%#{value}%") }
+    scope :filter_by, ->(column, value) do
+      where(arel_table[column.to_sym].matches("%#{value}%"))
+    end
 end

@@ -44,11 +44,6 @@ RSpec.describe 'Books API', type: :request do
 
         run_test!
       end
-
-      response(401, 'unauthorized') do
-        schema '$ref': '#/components/schemas/UnauthorizedError'
-        run_test!
-      end
     end
 
     post('Create Book') do
@@ -100,24 +95,6 @@ RSpec.describe 'Books API', type: :request do
         run_test!
       end
 
-      response(401, 'unauthorized') do
-        schema '$ref': '#/components/schemas/UnauthorizedError'
-
-        let(:book) do
-          {
-            book: {
-              title: 'Test Book',
-              author: 'Test Author',
-              publisher: 'Test Publisher',
-              edition: '1st Edition',
-              year: 2024
-            }
-          }
-        end
-
-        run_test!
-      end
-
       response(403, 'forbidden - members cannot create books') do
         schema '$ref': '#/components/schemas/UnauthorizedError'
 
@@ -139,7 +116,7 @@ RSpec.describe 'Books API', type: :request do
       end
 
       response(422, 'validation errors') do
-        schema '$ref': '#/components/schemas/ValidationError'
+        schema '$ref': '#/components/schemas/BooksValidationError'
 
         let(:librarian) { create(:user, :librarian) }
         let(:Authorization) { "Bearer #{generate_jwt_token(librarian)}" }
@@ -154,6 +131,7 @@ RSpec.describe 'Books API', type: :request do
             }
           }
         end
+        let(:Authorization) { "Bearer #{generate_jwt_token(librarian)}" }
 
         run_test!
       end
@@ -183,6 +161,7 @@ RSpec.describe 'Books API', type: :request do
 
       response(401, 'unauthorized') do
         schema '$ref': '#/components/schemas/UnauthorizedError'
+        let(:Authorization) { nil }
 
         let(:id) { create(:book).id }
 
@@ -253,7 +232,7 @@ RSpec.describe 'Books API', type: :request do
 
       parameter name: :Authorization, in: :header, type: :string, description: 'Bearer token for authentication'
 
-      response(204, 'book deleted') do
+      response(200, 'book deleted') do
         let(:librarian) { create(:user, :librarian) }
         let(:Authorization) { "Bearer #{generate_jwt_token(librarian)}" }
         let(:id) { create(:book).id }

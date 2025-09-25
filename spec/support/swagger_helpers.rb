@@ -14,8 +14,3 @@ module SwaggerHelpers
     JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key || ENV['DEVISE_JWT_SECRET_KEY'])
   end
 end
-
-RSpec.configure do |config|
-  config.include SwaggerHelpers, type: :request
-  config.include FactoryBot::Syntax::Methods
-end

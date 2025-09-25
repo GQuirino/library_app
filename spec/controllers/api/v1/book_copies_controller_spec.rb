@@ -275,6 +275,8 @@ RSpec.describe Api::V1::BookCopiesController, type: :controller do
   end
 
   describe 'error handling with invalid book_id' do
+    before { sign_in librarian_user }
+
     it 'returns 404 when book does not exist' do
       get :index, params: { book_id: 999999 }
       expect(response).to have_http_status(:not_found)

@@ -32,8 +32,13 @@ module Api
       def show
         authorize Reservation
 
-        @reservation = Reservation.find(params[:id])
-        render json: @reservation
+        @reservation = Reservation.find_by(id: params[:id])
+
+        if @reservation
+          render json: @reservation
+        else
+          render json: { errors: [ "Reservation not found" ] }, status: :not_found
+        end
       end
 
       # POST /api/v1/reservations/create

@@ -8,7 +8,9 @@ class BookCopy < ApplicationRecord
   scope :copies_for, ->(book) { where(book:) }
   scope :available, -> { where(available: true) }
   scope :unavailable, -> { where(available: false) }
-  scope :filter_by, ->(column, value) { joins(:book).where("books.#{column} ILIKE ?", "%#{value}%") }
+  scope :filter_by, ->(column, value) do
+    joins(:book).where(Book.arel_table[column.to_sym].matches("%#{value}%"))
+  end
 
   def mark_available!
     update!(available: true)

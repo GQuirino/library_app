@@ -152,7 +152,7 @@ RSpec.describe 'Book Copies API', type: :request do
 
       parameter name: :Authorization, in: :header, type: :string, description: 'Bearer token for authentication'
 
-      response(204, 'book copy deleted') do
+      response(200, 'book copy deleted') do
         let(:librarian) { create(:user, :librarian) }
         let(:Authorization) { "Bearer #{generate_jwt_token(librarian)}" }
         let(:book) { create(:book) }

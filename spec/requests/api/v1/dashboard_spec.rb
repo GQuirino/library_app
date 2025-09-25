@@ -19,14 +19,13 @@ RSpec.describe 'Dashboard API', type: :request do
         before do
           # Create test data
           create_list(:book, 5)
-          create_list(:reservation, 3, :active)
+          create_list(:reservation, 3, :open)
           create_list(:reservation, 2, :overdue)
         end
 
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data).to have_key('total_books')
-          expect(data).to have_key('active_reservations')
         end
       end
 

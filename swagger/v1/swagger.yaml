@@ -39,17 +39,11 @@ paths:
                       user:
                         "$ref": "#/components/schemas/User"
         '401':
-          description: invalid credentials
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/Error"
-        '422':
           description: invalid parameters
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ValidationError"
+                "$ref": "#/components/schemas/UserValidationError"
       requestBody:
         content:
           application/json:
@@ -100,12 +94,6 @@ paths:
                       message:
                         type: string
                         example: Logged out successfully.
-        '401':
-          description: unauthorized
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorLogout"
   "/signup":
     post:
       summary: User Registration
@@ -140,7 +128,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ValidationError"
+                "$ref": "#/components/schemas/UserValidationError"
       requestBody:
         content:
           application/json:
@@ -338,7 +326,7 @@ paths:
         schema:
           type: string
       responses:
-        '204':
+        '200':
           description: book copy deleted
         '403':
           description: forbidden
@@ -449,12 +437,6 @@ paths:
                         type: string
                       genre:
                         type: string
-        '401':
-          description: unauthorized
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/UnauthorizedError"
     post:
       summary: Create Book
       tags:
@@ -475,12 +457,6 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Book"
-        '401':
-          description: unauthorized
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/UnauthorizedError"
         '403':
           description: forbidden - members cannot create books
           content:
@@ -492,7 +468,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ValidationError"
+                "$ref": "#/components/schemas/BooksValidationError"
       requestBody:
         content:
           application/json:
@@ -626,7 +602,7 @@ paths:
         schema:
           type: string
       responses:
-        '204':
+        '200':
           description: book deleted
         '403':
           description: forbidden
@@ -917,11 +893,6 @@ components:
         updated_at:
           type: string
           format: date-time
-      required:
-      - id
-      - email
-      - name
-      - role
     Book:
       type: object
       properties:
@@ -955,43 +926,30 @@ components:
         updated_at:
           type: string
           format: date-time
-      required:
-      - id
-      - title
-      - author
-      - publisher
-      - edition
-      - year
     BookCopy:
       type: object
       properties:
         id:
           type: integer
           example: 1
-        book_id:
-          type: integer
-          example: 1
+        book_serial_number:
+          type: string
+          example: BC123456
         available:
           type: boolean
           example: true
-        condition:
+        book_id:
+          type: integer
+          example: 1
+        book_title:
           type: string
-          enum:
-          - excellent
-          - good
-          - fair
-          - poor
-          example: good
+          example: The Ruby Programming Language
         created_at:
           type: string
           format: date-time
         updated_at:
           type: string
           format: date-time
-      required:
-      - id
-      - book_id
-      - available
     Reservation:
       type: object
       properties:
@@ -1010,7 +968,7 @@ components:
           example: '2025-10-15'
         returned_at:
           type: string
-          format: date-time
+          format: date
           nullable: true
         created_at:
           type: string
@@ -1018,11 +976,6 @@ components:
         updated_at:
           type: string
           format: date-time
-      required:
-      - id
-      - user_id
-      - book_copy_id
-      - return_date
     Dashboard:
       type: object
       properties:
@@ -1072,23 +1025,38 @@ components:
         message:
           type: string
           example: Not authorized
-    ValidationError:
+    UserValidationError:
       type: object
       properties:
         message:
           type: string
-          example: Validation failed
+          example: User validation failed
         errors:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
+          type: array
+          items:
+            type: string
           example:
-            email:
-            - has already been taken
-            password:
-            - is too short (minimum is 6 characters)
+          - Name can't be blank
+          - Email is invalid
+          - Birthdate can't be blank
+          - Address can't be blank
+          - Phone number can't be blank
+    BooksValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Failed to create book
+        errors:
+          type: array
+          items:
+            type: string
+          example:
+          - Title can't be blank
+          - Author can't be blank
+          - Publisher can't be blank
+          - Edition can't be blank
+          - Year can't be blank
     PaginationMeta:
       type: object
       properties:
