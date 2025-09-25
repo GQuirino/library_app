@@ -1,11 +1,26 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:15
+  backend-app:
+    build: .
+    command: bin/dev
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
     environment:
       RAILS_ENV: development
       REDIS_URL: redis://redis:6379/1
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DEVISE_JWT_SECRET_KEY: 66e583daad39598afee69f320f4ea7519f554d96a51e65fcc00e50d3ab338769a746044b6fedcf7394ee2b1ef072f70b136ab6bcd23324e2f17987b296803697
+    depends_on:
+      - redis
+      - postgres
+
+  postgres:
+    image: postgres:15
+    environment:
       POSTGRES_DB: library_api_development
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -13,14 +28,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    depends_on:
-      - redis
 
   redis:
     image: redis:7.2-alpine
     ports:
       - "6379:6379"
     restart: unless-stopped
+    volumes:
+      - redis_data:/data
 
 volumes:
   postgres_data:
