@@ -13,6 +13,11 @@ module Api
                             .page(params[:page])
                             .per(params[:per_page] || 20)
                             .order(:book_serial_number)
+        
+        # Apply filters
+        filter_params.each do |key, value|
+          @book_copies = @book_copies.filter_by(key, value)
+        end
 
         render json: {
           book_copies: @book_copies.map do |copy|
@@ -31,7 +36,8 @@ module Api
             id: @book.id,
             title: @book.title,
             author: @book.author
-          }
+          },
+          filters: filter_params
         }
       end
 
@@ -137,6 +143,10 @@ module Api
       end
 
       private
+
+      def filter_params
+        params.permit(:title, :author, :genre).transform_values { |v| v.to_s.strip.presence }.compact 
+      end
 
       def set_book
         @book = Book.find(params[:book_id])

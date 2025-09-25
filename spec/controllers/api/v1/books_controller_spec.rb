@@ -571,4 +571,242 @@ RSpec.describe Api::V1::BooksController, type: :controller do
       expect(book_data['updated_at']).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
     end
   end
+
+    describe 'filtering functionality' do
+    before { sign_in member_user }
+
+    let!(:fantasy_book) { create(:book, title: 'The Lord of the Rings', author: 'J.R.R. Tolkien', genre: 'Fantasy') }
+    let!(:science_book) { create(:book, title: 'A Brief History of Time', author: 'Stephen Hawking', genre: 'Science') }
+    let!(:mystery_book) { create(:book, title: 'The Murder of Roger Ackroyd', author: 'Agatha Christie', genre: 'Mystery') }
+    let!(:another_tolkien) { create(:book, title: 'The Hobbit', author: 'J.R.R. Tolkien', genre: 'Fantasy') }
+
+    describe 'title filtering' do
+      it 'filters books by title (case insensitive)' do
+        get :index, params: { title: 'lord' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['books'].first['title']).to eq('The Lord of the Rings')
+      end
+
+      it 'filters books by partial title match' do
+        get :index, params: { title: 'the' }
+
+        parsed_response = JSON.parse(response.body)
+        titles = parsed_response['books'].map { |b| b['title'] }
+        expect(titles).to include('The Lord of the Rings', 'The Murder of Roger Ackroyd', 'The Hobbit')
+        expect(titles).not_to include('A Brief History of Time')
+      end
+
+      it 'returns empty array when no titles match' do
+        get :index, params: { title: 'nonexistent' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books']).to be_empty
+      end
+
+      it 'includes applied title filter in response' do
+        get :index, params: { title: 'lord' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['filters']['title']).to eq('lord')
+      end
+    end
+
+    describe 'author filtering' do
+      it 'filters books by author (case insensitive)' do
+        get :index, params: { author: 'tolkien' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(2)
+        authors = parsed_response['books'].map { |b| b['author'] }.uniq
+        expect(authors).to eq(['J.R.R. Tolkien'])
+      end
+
+      it 'filters books by partial author match' do
+        get :index, params: { author: 'christie' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['books'].first['author']).to eq('Agatha Christie')
+      end
+
+      it 'returns empty array when no authors match' do
+        get :index, params: { author: 'nonexistent author' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books']).to be_empty
+      end
+
+      it 'includes applied author filter in response' do
+        get :index, params: { author: 'tolkien' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['filters']['author']).to eq('tolkien')
+      end
+    end
+
+    describe 'genre filtering' do
+      it 'filters books by genre (case insensitive)' do
+        get :index, params: { genre: 'fantasy' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(2)
+        genres = parsed_response['books'].map { |b| b['genre'] }.uniq
+        expect(genres).to eq(['Fantasy'])
+      end
+
+      it 'filters books by exact genre match' do
+        get :index, params: { genre: 'Science' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['books'].first['genre']).to eq('Science')
+      end
+
+      it 'returns empty array when no genres match' do
+        get :index, params: { genre: 'Horror' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books']).to be_empty
+      end
+
+      it 'includes applied genre filter in response' do
+        get :index, params: { genre: 'fantasy' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['filters']['genre']).to eq('fantasy')
+      end
+    end
+
+    describe 'multiple filters' do
+      it 'applies multiple filters simultaneously' do
+        get :index, params: { author: 'tolkien', genre: 'fantasy' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(2)
+        
+        books = parsed_response['books']
+        expect(books.all? { |b| b['author'] == 'J.R.R. Tolkien' }).to be true
+        expect(books.all? { |b| b['genre'] == 'Fantasy' }).to be true
+      end
+
+      it 'narrows results with multiple filters' do
+        get :index, params: { title: 'lord', author: 'tolkien' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['books'].first['title']).to eq('The Lord of the Rings')
+      end
+
+      it 'returns empty when filters don\'t match any books' do
+        get :index, params: { author: 'tolkien', genre: 'science' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books']).to be_empty
+      end
+
+      it 'includes all applied filters in response' do
+        get :index, params: { title: 'lord', author: 'tolkien', genre: 'fantasy' }
+
+        parsed_response = JSON.parse(response.body)
+        filters = parsed_response['filters']
+        expect(filters['title']).to eq('lord')
+        expect(filters['author']).to eq('tolkien')
+        expect(filters['genre']).to eq('fantasy')
+      end
+    end
+
+    describe 'filters with pagination' do
+      it 'applies filters before pagination' do
+        get :index, params: { author: 'tolkien', per_page: 1, page: 1 }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['meta']['total_count']).to eq(2)
+        expect(parsed_response['meta']['total_pages']).to eq(2)
+      end
+
+      it 'maintains filters across pagination pages' do
+        get :index, params: { author: 'tolkien', per_page: 1, page: 2 }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['books'].first['author']).to eq('J.R.R. Tolkien')
+        expect(parsed_response['filters']['author']).to eq('tolkien')
+      end
+    end
+
+    describe 'empty and whitespace filters' do
+      it 'ignores empty string filters' do
+        get :index, params: { title: '', author: 'tolkien' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(2)
+        expect(parsed_response['filters']).to eq({ 'author' => 'tolkien' })
+      end
+
+      it 'ignores whitespace-only filters' do
+        get :index, params: { title: '   ', genre: 'fantasy' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(2)
+        expect(parsed_response['filters']).to eq({ 'genre' => 'fantasy' })
+      end
+
+      it 'trims whitespace from filter values' do
+        get :index, params: { author: '  tolkien  ' }
+
+        parsed_response = JSON.parse(response.body)
+
+        expect(parsed_response['books'].length).to eq(2)
+        expect(parsed_response['filters']['author']).to eq('tolkien')
+      end
+    end
+
+    describe 'special characters in filters' do
+      let!(:special_book) { create(:book, title: 'Book with "Quotes" & Symbols', author: 'O\'Brien, John', genre: 'Sci-Fi') }
+
+      it 'handles quotes in filter values' do
+        get :index, params: { title: 'quotes' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['books'].first['title']).to eq('Book with "Quotes" & Symbols')
+      end
+
+      it 'handles apostrophes in filter values' do
+        get :index, params: { author: 'brien' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['books'].first['author']).to eq('O\'Brien, John')
+      end
+
+      it 'handles hyphens in filter values' do
+        get :index, params: { genre: 'sci-fi' }
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(1)
+        expect(parsed_response['books'].first['genre']).to eq('Sci-Fi')
+      end
+    end
+
+    describe 'performance with filters' do
+      it 'efficiently handles large datasets with filters' do
+        # Create many books
+        create_list(:book, 50, author: 'Test Author', genre: 'Test Genre')
+        create_list(:book, 30, author: 'Other Author', genre: 'Other Genre')
+
+        expect {
+          get :index, params: { author: 'test author', per_page: 20 }
+          expect(response).to have_http_status(:ok)
+        }.not_to raise_error
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['books'].length).to eq(20)
+        expect(parsed_response['meta']['total_count']).to eq(50)
+      end
+    end
+  end
 end

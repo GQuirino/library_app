@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_25_015711) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_25_024245) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -20,6 +20,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_25_015711) do
     t.boolean "available"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["available"], name: "index_book_copies_on_available"
+    t.index ["book_id", "available"], name: "index_book_copies_on_book_id_and_available"
     t.index ["book_id"], name: "index_book_copies_on_book_id"
     t.index ["book_serial_number"], name: "index_book_copies_on_book_serial_number", unique: true
   end
@@ -34,6 +36,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_25_015711) do
     t.datetime "updated_at", null: false
     t.string "isbn"
     t.string "genre"
+    t.index ["author", "genre"], name: "index_books_on_author_and_genre"
+    t.index ["author"], name: "index_books_on_author"
+    t.index ["genre", "year"], name: "index_books_on_genre_and_year"
+    t.index ["genre"], name: "index_books_on_genre"
+    t.index ["title", "author"], name: "index_books_on_title_and_author"
+    t.index ["title"], name: "index_books_on_title"
   end
 
   create_table "jwt_denylists", force: :cascade do |t|
@@ -51,7 +59,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_25_015711) do
     t.date "returned_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["book_copy_id", "returned_at"], name: "index_reservations_on_book_copy_id_and_returned_at"
     t.index ["book_copy_id"], name: "index_reservations_on_book_copy_id"
+    t.index ["return_date", "returned_at"], name: "index_reservations_on_return_date_and_returned_at"
+    t.index ["return_date"], name: "index_reservations_on_return_date"
+    t.index ["returned_at", "return_date"], name: "index_reservations_on_returned_at_and_return_date"
+    t.index ["returned_at"], name: "index_reservations_on_returned_at"
+    t.index ["user_id", "returned_at"], name: "index_reservations_on_user_id_and_returned_at"
     t.index ["user_id"], name: "index_reservations_on_user_id"
   end
 

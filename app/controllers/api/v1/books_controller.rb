@@ -9,9 +9,15 @@ module Api
         authorize Book
 
         @books = Book.includes(:book_copies)
-                    .page(params[:page])
-                    .per(params[:per_page] || 20)
-                    .order(:title)
+
+        # Apply filters
+        filter_params.each do |key, value|
+          @books = @books.filter_by(key, value)
+        end
+
+        @books = @books.page(params[:page])
+                      .per(params[:per_page] || 20)
+                      .order(:title)
 
         render json: {
           books: @books.map do |book|
@@ -30,7 +36,8 @@ module Api
               updated_at: book.updated_at
             }
           end,
-          meta: pagination_meta(@books)
+          meta: pagination_meta(@books),
+          filters: filter_params
         }
       end
 
@@ -167,6 +174,10 @@ module Api
           total_pages: collection.total_pages,
           total_count: collection.total_count
         }
+      end
+
+      def filter_params
+        params.permit(:title, :author, :genre).transform_values{ |v| v.to_s.strip.presence }.compact
       end
     end
   end
