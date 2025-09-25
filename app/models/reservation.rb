@@ -5,7 +5,8 @@ class Reservation < ApplicationRecord
   belongs_to :user
 
   validates :book_copy, :user, presence: true
-  validates :return_date, presence: true
+  validates :return_date, presence: true, comparison: { greater_than: Date.current, message: "must be in the future" }, if: :new_record?
+  validate :book_copy_is_available, if: :new_record?
 
   before_create :mark_book_copy_unavailable!
 
@@ -23,16 +24,24 @@ class Reservation < ApplicationRecord
 
   def mark_as_returned!
     book_copy.mark_available!
-    update!(returned_at: Date.today)
+    update!(returned_at: Date.current)
   end
 
   def set_reservation_days(days = DEFAULT_RETURN_DAYS)
-    self.return_date = Date.today + days.days
+    self.return_date = Date.current + days.days
   end
 
   private
 
   def mark_book_copy_unavailable!
     book_copy&.mark_unavailable!
+  end
+
+  def book_copy_is_available
+    return unless book_copy  # If book_copy is nil, validation doesn't run
+
+    if Reservation.active.for_book_copy(book_copy).exists?
+      errors.add(:book_copy, "is already reserved")
+    end
   end
 end

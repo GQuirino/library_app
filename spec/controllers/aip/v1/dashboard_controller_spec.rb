@@ -71,7 +71,6 @@ RSpec.describe Api::V1::DashboardController, type: :controller do
         expect(parsed_response['recent_reservation_history']).to be_an(Array)
 
         # Verify correct data is returned
-        # debugger
         expected_response = {
           'active_not_overdue_reservations' => [
             {

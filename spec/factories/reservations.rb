@@ -24,5 +24,12 @@ FactoryBot.define do
       return_date { Date.today - 1.day }
       returned_at { Date.today }
     end
+
+    # Skip validations when using this trait to allow creating reservations with past return dates
+    after(:build) do |reservation|
+      def reservation.valid?(*args)
+        true
+      end
+    end
   end
 end

@@ -118,12 +118,12 @@ RSpec.describe Reservation, type: :model do
   describe '#set_reservation_days' do
     it 'sets the return_date to DEFAULT_RETURN_DAYS from today by default' do
       reservation.set_reservation_days
-      expect(reservation.return_date).to eq(Date.today + Reservation::DEFAULT_RETURN_DAYS.days)
+      expect(reservation.return_date).to eq(Date.current + Reservation::DEFAULT_RETURN_DAYS.days)
     end
 
     it 'sets the return_date to custom days from today' do
       reservation.set_reservation_days(5)
-      expect(reservation.return_date).to eq(Date.today + 5.days)
+      expect(reservation.return_date).to eq(Date.current + 5.days)
     end
   end
 
@@ -133,7 +133,7 @@ RSpec.describe Reservation, type: :model do
       reservation.save!
       expect(book_copy).to receive(:mark_available!)
       reservation.mark_as_returned!
-      expect(reservation.returned_at).to eq(Date.today)
+      expect(reservation.returned_at).to eq(Date.current)
     end
   end
 

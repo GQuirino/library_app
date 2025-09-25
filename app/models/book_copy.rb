@@ -10,12 +10,7 @@ class BookCopy < ApplicationRecord
   scope :unavailable, -> { where(available: false) }
 
   def mark_available!
-    # Do not mark available if there are active reservations for this book copy
-    if reservations.active.exists?
-      errors.add(:base, "Cannot mark as available while there are active reservations")
-    else
-      update!(available: true)
-    end
+    update!(available: true)
   end
 
   def mark_unavailable!

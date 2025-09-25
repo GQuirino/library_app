@@ -54,13 +54,6 @@ RSpec.describe BookCopy, type: :model do
       expect { book_copy_unavailable.mark_available! }.to change { book_copy_unavailable.reload.available }.to(true)
       expect(book_copy_unavailable.errors[:base]).to be_empty
     end
-
-    it "does not mark as available if there are active reservations" do
-      create(:reservation, :open, book_copy: book_copy_unavailable)
-
-      expect { book_copy_unavailable.mark_available! rescue nil }.not_to change { book_copy_unavailable.reload.available }
-      expect(book_copy_unavailable.errors[:base]).to include("Cannot mark as available while there are active reservations")
-    end
   end
 
   describe "#mark_unavailable!" do

@@ -20,6 +20,9 @@ Rails.application.routes.draw do
       end
 
       resources :book_copies, only: [ :show ]
+
+      post "/reservations/create", to: "reservations#create", as: "create_reservation"
+      patch "/reservations/:id/return", to: "reservations#return_book", as: "return_book"
     end
   end
 end
