@@ -5,7 +5,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       RAILS_ENV: development
       REDIS_URL: redis://redis:6379/1
@@ -17,6 +17,18 @@ services:
     depends_on:
       - redis
       - postgres
+
+  frontend-app:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+    stdin_open: true
+    tty: true
 
   postgres:
     image: postgres:15
