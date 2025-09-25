@@ -72,6 +72,8 @@ RSpec.describe Api::V1::BooksController, type: :controller do
           title: 'Test Title',
           author: 'Test Author',
           publisher: 'Test Publisher',
+          isbn: '123-4567890123',
+          genre: 'Fiction',
           edition: 'First Edition',
           year: 2023
         )
@@ -89,7 +91,9 @@ RSpec.describe Api::V1::BooksController, type: :controller do
           'edition' => 'First Edition',
           'year' => 2023,
           'total_copies' => 0,
-          'available_copies' => 0
+          'available_copies' => 0,
+          'isbn' => '123-4567890123',
+          'genre' => 'Fiction'
         )
         expect(book_data).to have_key('created_at')
         expect(book_data).to have_key('updated_at')
@@ -176,6 +180,8 @@ RSpec.describe Api::V1::BooksController, type: :controller do
         title: 'New Book Title',
         author: 'New Author',
         publisher: 'New Publisher',
+        isbn: '123-4567890123',
+        genre: 'Fiction',
         edition: 'First Edition',
         year: 2023
       }
@@ -185,7 +191,9 @@ RSpec.describe Api::V1::BooksController, type: :controller do
       {
         title: '',
         author: '',
-        publisher: 'Publisher'
+        publisher: 'Publisher',
+        isbn: '',
+        genre: ''
       }
     end
 
@@ -235,7 +243,9 @@ RSpec.describe Api::V1::BooksController, type: :controller do
             'author' => 'New Author',
             'publisher' => 'New Publisher',
             'edition' => 'First Edition',
-            'year' => 2023
+            'year' => 2023,
+            'isbn' => '123-4567890123',
+            'genre' => 'Fiction'
           )
           expect(parsed_response['message']).to eq('Book created successfully')
         end
@@ -247,6 +257,8 @@ RSpec.describe Api::V1::BooksController, type: :controller do
           expect(created_book.title).to eq('New Book Title')
           expect(created_book.author).to eq('New Author')
           expect(created_book.publisher).to eq('New Publisher')
+          expect(created_book.isbn).to eq('123-4567890123')
+          expect(created_book.genre).to eq('Fiction')
           expect(created_book.edition).to eq('First Edition')
           expect(created_book.year).to eq(2023)
         end
@@ -511,6 +523,8 @@ RSpec.describe Api::V1::BooksController, type: :controller do
             publisher: 'Publisher',
             edition: 'First',
             year: 2023,
+            isbn: '123-4567890123',
+            genre: 'Fiction',
             forbidden_param: 'should not be allowed'
           }
         }

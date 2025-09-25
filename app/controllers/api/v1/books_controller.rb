@@ -20,6 +20,8 @@ module Api
               title: book.title,
               author: book.author,
               publisher: book.publisher,
+              isbn: book.isbn,
+              genre: book.genre,
               edition: book.edition,
               year: book.year,
               total_copies: book.book_copies.count,
@@ -42,6 +44,8 @@ module Api
             title: @book.title,
             author: @book.author,
             publisher: @book.publisher,
+            isbn: @book.isbn,
+            genre: @book.genre,
             edition: @book.edition,
             year: @book.year,
             created_at: @book.created_at,
@@ -71,6 +75,8 @@ module Api
               title: @book.title,
               author: @book.author,
               publisher: @book.publisher,
+              isbn: @book.isbn,
+              genre: @book.genre,
               edition: @book.edition,
               year: @book.year,
               created_at: @book.created_at,
@@ -97,6 +103,8 @@ module Api
               title: @book.title,
               author: @book.author,
               publisher: @book.publisher,
+              isbn: @book.isbn,
+              genre: @book.genre,
               edition: @book.edition,
               year: @book.year,
               created_at: @book.created_at,
@@ -148,7 +156,7 @@ module Api
       end
 
       def book_params
-        params.require(:book).permit(:title, :author, :publisher, :edition, :year)
+        params.require(:book).permit(:title, :author, :publisher, :edition, :year, :isbn, :genre)
       end
 
       def pagination_meta(collection)

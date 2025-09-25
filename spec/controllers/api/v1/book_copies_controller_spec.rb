@@ -81,6 +81,8 @@ RSpec.describe Api::V1::BookCopiesController, type: :controller do
           title: book_copy.book.title,
           author: book_copy.book.author,
           publisher: book_copy.book.publisher,
+          isbn: book_copy.book.isbn,
+          genre: book_copy.book.genre,
           edition: book_copy.book.edition,
           year: book_copy.book.year
         }
