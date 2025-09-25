@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => "/api-docs"
+  mount Rswag::Api::Engine => "/api-docs"
   devise_for :users,
     path: "",
     path_names: {
@@ -21,12 +23,13 @@ Rails.application.routes.draw do
 
       resources :book_copies, only: [ :show ]
 
-      resources :reservations, only: [ :index, :show, :create ] do
+      resources :reservations, only: [ :index, :show ] do
         member do
           patch :return_book, path: "return"
-          post :create
         end
       end
+
+      post "/reservations/create", to: "reservations#create", as: "create_reservation"
     end
   end
 end
