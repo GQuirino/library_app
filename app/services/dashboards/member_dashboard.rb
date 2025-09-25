@@ -12,7 +12,7 @@ module Dashboards
 
     # Currently borrowed books (not returned)
     def self.active_not_overdue_reservations(user_id)
-      Rails.cache.fetch("dashboard:member:current_books:#{user_id}:#{Date.current}", expires_in: 30.minutes) do
+      Rails.cache.fetch("dashboard:member:current_books:#{user_id}:#{Date.current}", expires_in: 15.minutes) do
         Reservation.not_overdue
                    .for_user(user_id)
                    .select(
