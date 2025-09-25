@@ -1,13 +1,48 @@
 name: CI
 
 on:
-  pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  scan_ruby:
+  test:
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: library_api_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      RAILS_ENV: test
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: library_api_test
+      REDIS_URL: redis://localhost:6379/1
+      DEVISE_JWT_SECRET_KEY: 66e583daad39598afee69f320f4ea7519f554d96a51e65fcc00e50d3ab338769a746044b6fedcf7394ee2b1ef072f70b136ab6bcd23324e2f17987b296803697
 
     steps:
       - name: Checkout code
@@ -16,24 +51,29 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: 3.3.5
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
+      - name: Install dependencies
+        run: bundle install
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Verify Rails version
+        run: bundle exec rails --version
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Set up database
+        run: |
+          bundle exec rails db:create
+          bundle exec rails db:migrate
+
+      - name: Run linting (RuboCop)
+        run: bundle exec rubocop
+
+      - name: Run tests (RSpec)
+        run: bundle exec rspec
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
-
+          name: test-results
+          path: tmp/rspec_results.xml
