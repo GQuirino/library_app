@@ -44,14 +44,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_25_024245) do
     t.index ["title"], name: "index_books_on_title"
   end
 
-  create_table "jwt_denylists", force: :cascade do |t|
-    t.string "jti"
-    t.datetime "exp"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["jti"], name: "index_jwt_denylists_on_jti"
-  end
-
   create_table "reservations", force: :cascade do |t|
     t.bigint "book_copy_id", null: false
     t.bigint "user_id", null: false

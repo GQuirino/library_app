@@ -21,7 +21,7 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: library_api_development
+      POSTGRES_DB: library_app_development
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
