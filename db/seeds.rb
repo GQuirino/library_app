@@ -11,7 +11,7 @@ if Rails.env.development?
   BookCopy.delete_all
   Book.delete_all
   User.delete_all
-  
+
   # Reset primary key sequences
   ActiveRecord::Base.connection.reset_pk_sequence!('users')
   ActiveRecord::Base.connection.reset_pk_sequence!('books')
@@ -38,7 +38,7 @@ librarians = [
   },
   {
     name: "Bob Wilson",
-    email: "bob.wilson@library.com", 
+    email: "bob.wilson@library.com",
     password: "password123",
     role: :librarian,
     birthdate: Date.new(1978, 8, 22),
@@ -71,7 +71,7 @@ members = [
     birthdate: Date.new(1990, 5, 10),
     address: {
       street: "789 Reader Rd",
-      city: "Booktown", 
+      city: "Booktown",
       zip: "12347",
       state: "Reading State"
     },
@@ -80,13 +80,13 @@ members = [
   {
     name: "Sarah Davis",
     email: "sarah.davis@email.com",
-    password: "password123", 
+    password: "password123",
     role: :member,
     birthdate: Date.new(1992, 11, 3),
     address: {
       street: "321 Novel Lane",
       city: "Booktown",
-      zip: "12348", 
+      zip: "12348",
       state: "Reading State"
     },
     phone_number: "+1-555-0202"
@@ -113,7 +113,7 @@ members = [
     birthdate: Date.new(1995, 2, 25),
     address: {
       street: "987 Chapter Ave",
-      city: "Booktown", 
+      city: "Booktown",
       zip: "12350",
       state: "Reading State"
     },
@@ -121,7 +121,7 @@ members = [
   },
   {
     name: "David Lee",
-    email: "david.lee@email.com", 
+    email: "david.lee@email.com",
     password: "password123",
     role: :member,
     birthdate: Date.new(1987, 9, 12),
@@ -156,7 +156,7 @@ books = [
     isbn: "978-0-7432-7356-5"
   },
   {
-    title: "To Kill a Mockingbird", 
+    title: "To Kill a Mockingbird",
     author: "Harper Lee",
     publisher: "J.B. Lippincott & Co.",
     edition: "1st Edition",
@@ -167,7 +167,7 @@ books = [
   {
     title: "1984",
     author: "George Orwell",
-    publisher: "Secker & Warburg", 
+    publisher: "Secker & Warburg",
     edition: "1st Edition",
     year: 1949,
     genre: "Dystopian Fiction",
@@ -177,7 +177,7 @@ books = [
     title: "Pride and Prejudice",
     author: "Jane Austen",
     publisher: "T. Egerton",
-    edition: "1st Edition", 
+    edition: "1st Edition",
     year: 1813,
     genre: "Romance",
     isbn: "978-0-14-143951-8"
@@ -235,12 +235,12 @@ book_copies_data = []
 created_books.each_with_index do |book, book_index|
   # Create 2-4 copies per book
   copies_count = rand(2..4)
-  
+
   copies_count.times do |copy_index|
     book_copies_data << {
       book: book,
       book_serial_number: "#{book.title.gsub(/\s+/, '').upcase[0..5]}-#{book_index + 1}-#{copy_index + 1}-#{rand(1000..9999)}",
-      available: [true, false].sample
+      available: [ true, false ].sample
     }
   end
 end
@@ -265,7 +265,7 @@ unavailable_copies.each do |copy|
   member = available_members.sample
   created_at = rand(1..14).days.ago
   return_date = created_at + rand(7..21).days
-  
+
   reservations_data << {
     user: member,
     book_copy: copy,
@@ -282,7 +282,7 @@ end
   created_at = rand(30..90).days.ago
   return_date = created_at + rand(7..21).days
   returned_date = return_date - rand(0..3).days # Returned on time or early
-  
+
   reservations_data << {
     user: member,
     book_copy: copy,
@@ -297,10 +297,10 @@ end
   member = available_members.sample
   copy = created_book_copies.select { |c| !c.available }.sample
   next unless copy # Skip if no unavailable copy
-  
+
   created_at = rand(21..45).days.ago
   return_date = rand(1..7).days.ago # Overdue
-  
+
   reservations_data << {
     user: member,
     book_copy: copy,
@@ -330,6 +330,6 @@ puts "⚠️  Overdue Reservations: #{overdue_count}"
 puts "\n🎉 Seeding completed successfully!"
 puts "\n🔑 Login Credentials:"
 puts "Librarian: alice.johnson@library.com / password123"
-puts "Librarian: bob.wilson@library.com / password123"  
+puts "Librarian: bob.wilson@library.com / password123"
 puts "Member: john.smith@email.com / password123"
 puts "Member: sarah.davis@email.com / password123"

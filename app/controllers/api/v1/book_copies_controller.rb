@@ -10,10 +10,10 @@ module Api
         authorize @book
 
         @book_copies = @book.book_copies
-                            .page(params[:page])
-                            .per(params[:per_page] || 20)
+                            .page(params["page"])
+                            .per(params["per_page"] || 20)
                             .order(:book_serial_number)
-        
+
         # Apply filters
         filter_params.each do |key, value|
           @book_copies = @book_copies.filter_by(key, value)
@@ -145,7 +145,7 @@ module Api
       private
 
       def filter_params
-        params.permit(:title, :author, :genre).transform_values { |v| v.to_s.strip.presence }.compact 
+        params.permit(:title, :author, :genre).transform_values { |v| v.to_s.strip.presence }.compact
       end
 
       def set_book

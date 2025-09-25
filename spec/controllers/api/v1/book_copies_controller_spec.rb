@@ -427,11 +427,11 @@ RSpec.describe Api::V1::BookCopiesController, type: :controller do
       end
 
       it 'applies filters before pagination' do
-        get :index, params: { 
-          book_id: book_with_many_copies.id, 
-          author: 'famous', 
-          per_page: 5, 
-          page: 1 
+        get :index, params: {
+          book_id: book_with_many_copies.id,
+          author: 'famous',
+          per_page: 5,
+          page: 1
         }
 
         parsed_response = JSON.parse(response.body)
@@ -441,11 +441,11 @@ RSpec.describe Api::V1::BookCopiesController, type: :controller do
       end
 
       it 'maintains filters across pagination pages' do
-        get :index, params: { 
-          book_id: book_with_many_copies.id, 
-          author: 'famous', 
-          per_page: 5, 
-          page: 2 
+        get :index, params: {
+          book_id: book_with_many_copies.id,
+          author: 'famous',
+          per_page: 5,
+          page: 2
         }
 
         parsed_response = JSON.parse(response.body)
@@ -483,9 +483,9 @@ RSpec.describe Api::V1::BookCopiesController, type: :controller do
 
     describe 'special characters in filters' do
       let!(:special_book) do
-        create(:book, 
-          title: 'Book with "Quotes" & Symbols', 
-          author: 'O\'Brien, John', 
+        create(:book,
+          title: 'Book with "Quotes" & Symbols',
+          author: 'O\'Brien, John',
           genre: 'Sci-Fi'
         )
       end
@@ -552,10 +552,10 @@ RSpec.describe Api::V1::BookCopiesController, type: :controller do
 
       it 'efficiently handles large datasets with filters' do
         expect {
-          get :index, params: { 
-            book_id: large_book.id, 
-            author: 'prolific', 
-            per_page: 20 
+          get :index, params: {
+            book_id: large_book.id,
+            author: 'prolific',
+            per_page: 20
           }
           expect(response).to have_http_status(:ok)
         }.not_to raise_error
@@ -567,10 +567,10 @@ RSpec.describe Api::V1::BookCopiesController, type: :controller do
 
       it 'applies filters efficiently without loading unnecessary data' do
         # This test ensures that filtering happens at the database level
-        get :index, params: { 
-          book_id: large_book.id, 
-          title: 'nonexistent', 
-          per_page: 10 
+        get :index, params: {
+          book_id: large_book.id,
+          title: 'nonexistent',
+          per_page: 10
         }
 
         parsed_response = JSON.parse(response.body)

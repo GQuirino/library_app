@@ -177,7 +177,7 @@ module Api
       end
 
       def filter_params
-        params.permit(:title, :author, :genre).transform_values{ |v| v.to_s.strip.presence }.compact
+        params.permit(:title, :author, :genre).transform_values { |v| v.to_s.strip.presence }.compact
       end
     end
   end

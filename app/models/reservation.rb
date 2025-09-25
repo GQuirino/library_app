@@ -17,6 +17,9 @@ class Reservation < ApplicationRecord
   scope :for_user, ->(user_id) { where(user_id:) }
   scope :for_book_copy, ->(book_copy) { where(book_copy:) }
   scope :ended, -> { where.not(returned_at: nil) }
+  scope :by_return_date_range, ->(start_date, end_date) { where(return_date: start_date..end_date) }
+  scope :by_book, ->(book_id) { joins(book_copy: :book).where(books: { id: book_id }) }
+  scope :filter_by, ->(column, value) { where(column => value) }
 
   def self.due_today
     due_date(Date.current)

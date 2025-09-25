@@ -1,4 +1,12 @@
 class ReservationPolicy < ApplicationPolicy
+  def index?
+    user.librarian?
+  end
+
+  def show?
+   true
+  end
+
   def create?
     true
   end

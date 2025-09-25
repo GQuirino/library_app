@@ -620,7 +620,7 @@ RSpec.describe Api::V1::BooksController, type: :controller do
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['books'].length).to eq(2)
         authors = parsed_response['books'].map { |b| b['author'] }.uniq
-        expect(authors).to eq(['J.R.R. Tolkien'])
+        expect(authors).to eq([ 'J.R.R. Tolkien' ])
       end
 
       it 'filters books by partial author match' do
@@ -653,7 +653,7 @@ RSpec.describe Api::V1::BooksController, type: :controller do
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['books'].length).to eq(2)
         genres = parsed_response['books'].map { |b| b['genre'] }.uniq
-        expect(genres).to eq(['Fantasy'])
+        expect(genres).to eq([ 'Fantasy' ])
       end
 
       it 'filters books by exact genre match' do
@@ -685,7 +685,7 @@ RSpec.describe Api::V1::BooksController, type: :controller do
 
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['books'].length).to eq(2)
-        
+
         books = parsed_response['books']
         expect(books.all? { |b| b['author'] == 'J.R.R. Tolkien' }).to be true
         expect(books.all? { |b| b['genre'] == 'Fantasy' }).to be true
