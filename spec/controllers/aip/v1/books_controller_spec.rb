@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe BooksController, type: :controller do
+RSpec.describe Api::V1::BooksController, type: :controller do
   let(:librarian_user) { create(:user, :librarian) }
   let(:member_user) { create(:user, :member) }
   let(:book) { create(:book) }
@@ -261,7 +261,7 @@ RSpec.describe BooksController, type: :controller do
 
         it 'returns unprocessable entity status' do
           post :create, params: { book: invalid_attributes }
-          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to have_http_status(:unprocessable_content)
         end
 
         it 'returns validation errors' do
@@ -354,7 +354,7 @@ RSpec.describe BooksController, type: :controller do
 
         it 'returns unprocessable entity status' do
           put :update, params: { id: book.id, book: invalid_attributes }
-          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to have_http_status(:unprocessable_content)
         end
 
         it 'returns validation errors' do
@@ -447,7 +447,7 @@ RSpec.describe BooksController, type: :controller do
 
           delete :destroy, params: { id: book_id }
 
-          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to have_http_status(:unprocessable_content)
           expect(Book.exists?(book_id)).to be(true)
 
           parsed_response = JSON.parse(response.body)

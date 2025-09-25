@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe DashboardController, type: :controller do
+RSpec.describe Api::V1::DashboardController, type: :controller do
   let(:member_user) { create(:user, :member) }
   let(:librarian_user) { create(:user, :librarian) }
 

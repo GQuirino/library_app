@@ -1,8 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe BookCopiesController, type: :controller do
-  include Devise::Test::ControllerHelpers
-
+RSpec.describe Api::V1::BookCopiesController, type: :controller do
   let(:librarian_user) { create(:user, :librarian) }
   let(:member_user) { create(:user, :member) }
   let(:book) { create(:book) }
@@ -128,7 +126,7 @@ RSpec.describe BookCopiesController, type: :controller do
       it 'returns errors for invalid attributes' do
         post :create, params: { book_id: book.id, book_copy: invalid_attributes }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         parsed_response = JSON.parse(response.body)
         expect(parsed_response).to have_key('errors')
       end
@@ -141,7 +139,7 @@ RSpec.describe BookCopiesController, type: :controller do
           book_copy: { book_serial_number: 'DUPLICATE', available: true }
         }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 
@@ -185,7 +183,7 @@ RSpec.describe BookCopiesController, type: :controller do
           book_copy: { book_serial_number: '' }
         }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         parsed_response = JSON.parse(response.body)
         expect(parsed_response).to have_key('errors')
       end
@@ -227,7 +225,7 @@ RSpec.describe BookCopiesController, type: :controller do
           delete :destroy, params: { book_id: book.id, id: book_copy.id }
         }.not_to change(BookCopy, :count)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it 'allows deletion when reservations are returned' do
