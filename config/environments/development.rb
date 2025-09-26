@@ -23,6 +23,8 @@ Rails.application.configure do
     config.action_controller.perform_caching = false
   end
 
+  config.hosts << "www.example.com"
+
   # Change to :null_store to avoid any caching.
   config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1") }
 

@@ -485,18 +485,6 @@ const Reservations = ({ user, onLogout }) => {
     }
   }, [onLogout]);
 
-  const getStatusBadge = useCallback((reservation) => {
-    const today = new Date();
-    const returnDate = new Date(reservation.return_date);
-    if (reservation.returned_at) {
-      return <span className="status-badge status-returned">Returned</span>;
-    } else if (returnDate < today) {
-      return <span className="status-badge status-overdue">Overdue</span>;
-    } else {
-      return <span className="status-badge status-active">Active</span>;
-    }
-  }, []);
-
   const formatDate = useCallback((dateString) => {
     return new Date(dateString).toLocaleDateString();
   }, []);

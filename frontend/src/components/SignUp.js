@@ -111,7 +111,7 @@ const SignUp = () => {
     setErrors({}); // Clear any previous errors
 
     try {
-      const userData = await apiService.signup(formData);
+      await apiService.signup(formData);
 
       navigate('/login?signup=success');
       
