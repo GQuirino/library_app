@@ -206,11 +206,6 @@ const LibrarianDashboard = ({ user, onLogout }) => {
                     <div className="member-name">{member.name}</div>
                     <div className="member-email">{member.email}</div>
                   </div>
-                  <div className="member-actions">
-                    <button className="contact-button">
-                      Contact Member
-                    </button>
-                  </div>
                 </div>
               ))}
             </div>
