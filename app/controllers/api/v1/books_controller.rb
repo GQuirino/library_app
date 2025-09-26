@@ -11,8 +11,17 @@ module Api
         @books = Book.includes(:book_copies)
 
         # Apply filters
-        filter_params.each do |key, value|
-          @books = @books.filter_by(key, value)
+        if filter_params[:search].present?
+          search = filter_params[:search]
+          base = @books
+          title_match = Book.arel_table[:title].matches("%#{search}%")
+          author_match = Book.arel_table[:author].matches("%#{search}%")
+          genre_match = Book.arel_table[:genre].matches("%#{search}%")
+          @books = base.where(title_match.or(author_match).or(genre_match))
+        else
+          filter_params.each do |key, value|
+            @books = @books.filter_by(key, value)
+          end
         end
 
         @books = @books.page(params[:page])
@@ -177,7 +186,7 @@ module Api
       end
 
       def filter_params
-        params.permit(:title, :author, :genre).transform_values { |v| v.to_s.strip.presence }.compact
+        params.permit(:title, :author, :genre, :search).transform_values { |v| v.to_s.strip.presence }.compact
       end
     end
   end

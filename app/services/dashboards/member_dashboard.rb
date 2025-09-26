@@ -61,12 +61,5 @@ module Dashboards
                    .limit(10)
       end
     end
-
-    # Total count of books ever borrowed
-    def self.total_borrowed_count(user_id)
-      Rails.cache.fetch("dashboard:member:total_count:#{user_id}", expires_in: 1.hour) do
-        Reservation.where(user_id: user_id).count
-      end
-    end
   end
 end

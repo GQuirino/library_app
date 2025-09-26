@@ -131,7 +131,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 
         expect(response).to have_http_status(:not_found)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['errors']).to include("Book copy not found")
+        expect(parsed_response['errors']).to include("Book copy not found or not available")
       end
     end
 
@@ -489,10 +489,8 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
           end_date = Date.current + 15.days
 
           get :index, params: {
-            return_date_range: {
-              start: start_date.iso8601,
-              end: end_date.iso8601
-            }
+            return_date_range_start: start_date.iso8601,
+            return_date_range_end: end_date.iso8601
           }
 
           expect(response).to have_http_status(:ok)

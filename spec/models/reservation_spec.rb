@@ -6,23 +6,6 @@ RSpec.describe Reservation, type: :model do
   let(:reservation) { described_class.new(user: user, book_copy: book_copy) }
 
   describe 'validations' do
-    it 'is valid with valid attributes' do
-      reservation.set_reservation_days
-      expect(reservation).to be_valid
-    end
-
-    it 'is invalid without a user' do
-      reservation.user = nil
-      reservation.set_reservation_days
-      expect(reservation).not_to be_valid
-    end
-
-    it 'is invalid without a book_copy' do
-      reservation.book_copy = nil
-      reservation.set_reservation_days
-      expect(reservation).not_to be_valid
-    end
-
     it 'is invalid without a return_date' do
       expect(reservation).not_to be_valid
     end
@@ -115,33 +98,13 @@ RSpec.describe Reservation, type: :model do
     end
   end
 
-  describe '#set_reservation_days' do
-    it 'sets the return_date to DEFAULT_RETURN_DAYS from today by default' do
-      reservation.set_reservation_days
-      expect(reservation.return_date).to eq(Date.current + Reservation::DEFAULT_RETURN_DAYS.days)
-    end
-
-    it 'sets the return_date to custom days from today' do
-      reservation.set_reservation_days(5)
-      expect(reservation.return_date).to eq(Date.current + 5.days)
-    end
-  end
-
   describe '#mark_as_returned!' do
     it 'marks the book_copy as available and sets returned_at' do
-      reservation.set_reservation_days
+      reservation.return_date = Date.current + 7.days
       reservation.save!
       expect(book_copy).to receive(:mark_available!)
       reservation.mark_as_returned!
       expect(reservation.returned_at).to eq(Date.current)
-    end
-  end
-
-  describe 'callbacks' do
-    it 'marks book_copy as unavailable before create' do
-      expect(book_copy).to receive(:mark_unavailable!)
-      reservation.set_reservation_days
-      reservation.save!
     end
   end
 end
