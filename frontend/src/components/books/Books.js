@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import NavBar from '../navbar/NavBar';
 import useBooksData from './useBooksData';
@@ -6,13 +5,15 @@ import BookCard from './BookCard';
 import ReservationModal from './ReservationModal';
 import apiService, { ApiError } from '../../services/apiService';
 import './Books.css';
-
+import NewBookModal from './NewBookModal';
 
 const Books = ({ user, onLogout }) => {
+  const [showNewBookModal, setShowNewBookModal] = useState(false);
   const [showReservationModal, setShowReservationModal] = useState(false);
   const [reservationLoading, setReservationLoading] = useState(false);
   const [reservationSuccess, setReservationSuccess] = useState(null);
   const [selectedBook, setSelectedBook] = useState(null);
+
   const perPage = 12;
   const {
     books,
@@ -150,55 +151,65 @@ const Books = ({ user, onLogout }) => {
 
       <div className="books-main">
         <div className="books-content">
-          <div className="books-header">
+          <div className="books-header flex items-center justify-between mb-6">
             <h1 className="books-title">Library Books</h1>
+
+            {/* Add Book Button for Librarian */}
+            {user?.role === 'librarian' && (
+              <button
+                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 text-white font-semibold text-base px-4 py-2 shadow transition hover:bg-indigo-800 focus:bg-indigo-800"
+                onClick={() => setShowNewBookModal(true)}
+              >
+                + Add New Book
+              </button>
+            )}
+          </div>
+
+          {/* Search Section */}
+          <div className="books-search-section">
+            <form onSubmit={handleSearch} className="books-search-form">
+              <div className="books-search-controls">
+                <select
+                  value={searchType}
+                  onChange={handleSearchTypeChange}
+                  className="books-search-type"
+                >
+                  <option value="all">All Fields</option>
+                  <option value="title">Title</option>
+                  <option value="author">Author</option>
+                  <option value="genre">Genre</option>
+                </select>
+                
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder={`Search by ${searchType === 'all' ? 'title, author, or genre' : searchType}...`}
+                  className="books-search-input"
+                />
+                
+                <button
+                  type="submit"
+                  className="books-search-btn"
+                >
+                  <svg className="books-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Search
+                </button>
+              </div>
+            </form>
             
-            {/* Search Section */}
-            <div className="books-search-section">
-              <form onSubmit={handleSearch} className="books-search-form">
-                <div className="books-search-controls">
-                  <select
-                    value={searchType}
-                    onChange={handleSearchTypeChange}
-                    className="books-search-type"
-                  >
-                    <option value="all">All Fields</option>
-                    <option value="title">Title</option>
-                    <option value="author">Author</option>
-                    <option value="genre">Genre</option>
-                  </select>
-                  
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    placeholder={`Search by ${searchType === 'all' ? 'title, author, or genre' : searchType}...`}
-                    className="books-search-input"
-                  />
-                  
-                  <button
-                    type="submit"
-                    className="books-search-btn"
-                  >
-                    <svg className="books-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    Search
-                  </button>
-                </div>
-              </form>
-              
-              {/* Results Info */}
-              {!isLoading && (
-                <div className="books-results-info">
-                  {searchQuery ? (
-                    <p>Found {totalBooks} books matching "{searchQuery}"</p>
-                  ) : (
-                    <p>Showing {totalBooks} books total</p>
-                  )}
-                </div>
-              )}
-            </div>
+            {/* Results Info */}
+            {!isLoading && (
+              <div className="books-results-info">
+                {searchQuery ? (
+                  <p>Found {totalBooks} books matching "{searchQuery}"</p>
+                ) : (
+                  <p>Showing {totalBooks} books total</p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Loading State */}
@@ -261,6 +272,13 @@ const Books = ({ user, onLogout }) => {
         </div>
       </div>
 
+      {/* New Book Modal */}
+      <NewBookModal
+        show={showNewBookModal}
+        onClose={() => setShowNewBookModal(false)}
+        fetchBooks={fetchBooks}
+      />
+      
       {/* Reservation Success Modal */}
       <ReservationModal
         show={showReservationModal && reservationSuccess}
